@@ -136,14 +136,14 @@
 	<div class="container">
 		<h1>BorrelBot</h1>
 		<ul class="grid-nav">
-
+			<li><a href="#">Order</a></li>
+			<li><a href="settings.php">Settings</a></li>
+			<li><a href="#">Placeholder</a></li>
 		</ul>	
 		
 		<div id="three-columns" class="grid-container" style="display:block;">
 			<ul class="rig columns-3">
-			
 			<?php
-			// Voor lokale test server. Gebruik dit niet op een serieuze server.
 			$dbhost = 'localhost';
 			$dbuser = 'root';
 			$dbpass = 'pass123';
@@ -179,7 +179,6 @@
 }			?>
 			</ul>
 		</div>
-		<!--/#three-columns-->
 		
 		<!-- Verander de links -->
 		<p class="centered">Door: 

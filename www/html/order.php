@@ -100,7 +100,6 @@
 		line-height: 1.5em;
 		color: #999;
 	}
-	/* class for 3 columns */
 	ul.rig.columns-3 li {
 		width: 30.83%; /* this value + 2.5 should = 33% */
 	}
@@ -138,10 +137,11 @@
 		<ul class="grid-nav">
 			<li><a href="#">Order</a></li>
 			<li><a href="settings.php">Settings</a></li>
-			<li><a href="#">Placeholder</a></li>
+			<li><a href="#">Edit Recipes</a></li>
 		</ul>	
 		
 		<div id="three-columns" class="grid-container" style="display:block;">
+			<h3>Currently available</h3>
 			<ul class="rig columns-3">
 			<?php
 			$dbhost = 'localhost';
@@ -154,29 +154,75 @@
 			$dbname = 'borrelbot';
 			mysql_select_db($dbname);
 
-			$res = mysql_query("SELECT * FROM cocktails");
+			$available = mysql_fetch_array(mysql_query("SELECT * FROM available"));
+			$cocktails = mysql_query("SELECT * FROM cocktails");
 
-			while ($row = mysql_fetch_array($res, MYSQL_BOTH)) {
+			$ingr_rows = array("ingr_1", "ingr_2", "ingr_3", "ingr_4");
+
+			//Split all cocktails into two groups: those that are ready to be made and those that are not.
+
+			$makeable = array();
+			$notmakeable = array();
+
+			while ($cocktail = mysql_fetch_array($cocktails, MYSQL_BOTH)) {
+				$ok = true;
+				foreach($ingr_rows as $ingr_row) {
+					if ($cocktail[$ingr_row] != null) {
+						if (!in_array($cocktail[$ingr_row], $available)){
+							$ok = false;
+						}
+					}
+				}
+				if ($ok == true) {
+					array_push($makeable, $cocktail);
+				}
+				else {
+					array_push($notmakeable, $cocktail);
+				}
+			}
+
+			foreach ($makeable as $cocktail) {
 				echo'<li>
-					<img src="' . $row['picture'] . '" />
-					<h3>'. $row['name'] . '</h3>
+					<img src="' . $cocktail['picture'] . '" />
+					<h3>'. $cocktail['name'] . '</h3>
 					<p>';
-					if ($row['ingr_1'] != null) {
-						echo $row['ingr_1']. ': '. $row['amnt_1'].'ml<br>';
+					if ($cocktail['ingr_1'] != null) {
+						echo $cocktail['ingr_1']. ': '. $cocktail['amnt_1'].'ml<br>';
 					}
-					if ($row['ingr_2'] != null) {
-						echo $row['ingr_2']. ': '. $row['amnt_2'].'ml<br>';
+					if ($cocktail['ingr_2'] != null) {
+						echo $cocktail['ingr_2']. ': '. $cocktail['amnt_2'].'ml<br>';
 					}
-					if ($row['ingr_3'] != null) {
-						echo $row['ingr_3']. ': '. $row['amnt_3'].'ml<br>';
+					if ($cocktail['ingr_3'] != null) {
+						echo $cocktail['ingr_3']. ': '. $cocktail['amnt_3'].'ml<br>';
 					}
-					if ($row['ingr_4'] != null) {
-						echo $row['ingr_4']. ': '. $row['amnt_4'].'ml<br>';
+					if ($cocktail['ingr_4'] != null) {
+						echo $cocktail['ingr_4']. ': '. $cocktail['amnt_4'].'ml<br>';
 					}
 				echo'</p>
 				</li>';
-			
-}			?>
+			}
+			echo "</ul><br><h3>Currently unavailable</h3><br><ul class='rig columns-3'>";
+			foreach ($notmakeable as $cocktail) {
+				echo'<li>
+					<img src="' . $cocktail['picture'] . '" />
+					<h3>'. $cocktail['name'] . '</h3>
+					<p>';
+					if ($cocktail['ingr_1'] != null) {
+						echo $cocktail['ingr_1']. ': '. $cocktail['amnt_1'].'ml<br>';
+					}
+					if ($cocktail['ingr_2'] != null) {
+						echo $cocktail['ingr_2']. ': '. $cocktail['amnt_2'].'ml<br>';
+					}
+					if ($cocktail['ingr_3'] != null) {
+						echo $cocktail['ingr_3']. ': '. $cocktail['amnt_3'].'ml<br>';
+					}
+					if ($cocktail['ingr_4'] != null) {
+						echo $cocktail['ingr_4']. ': '. $cocktail['amnt_4'].'ml<br>';
+					}
+				echo'</p>
+				</li>';
+			}
+			?>
 			</ul>
 		</div>
 		

@@ -133,7 +133,7 @@
 <body>
 <div class="wrapper">
 	<div class="container">
-		<h1>BorrelBot</h1>
+		<h1>BorrelBot - Order</h1>
 		<ul class="grid-nav">
 			<li><a href="#">Order</a></li>
 			<li><a href="settings.php">Settings</a></li>

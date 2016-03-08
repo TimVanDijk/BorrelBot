@@ -2,55 +2,62 @@ import serial
 # import random
 import time
 
-ser = serial.Serial('/dev/ttyUSB0', 9600)
+ser = serial.Serial('/dev/ttyUSB2', 9600)
+def flushAll():
+	ser.flushInput()
+	ser.flushOutput()
 
 # Next time is for pump n
-# Protocol in-depth in *.io
+# Protocol in-depth in *.ino
 def sendPump(n):
-	ser.write (bytes('p'))
-	tmp = ser.read()
-	if (tmp == bytes('p')):
-		ser.write(bytes(n))
+	print ("Send: p"+str(n))
+	ser.write (("p"+str(n)+"#").encode())
+	tmp = ser.readline()
+	flushAll()
+	print "Recv: " + str(tmp[0])
+	if tmp[0] == str(n):
+		ser.write("k#".encode())
+		print "Send: k"
 	else:
-		ser.write('x')
+		ser.write("x#".encode())
+		print "Send: x"
 		sendPump(n)
+	flushAll()
 
 # time for previously sent pump is n.
-# Protocol in-depth in *.io
-def sendMillis(n):
-	correct = True
-	ser.write (bytes('m'))
-	tmp = ser.read()
-	if (tmp == bytes('m')):
-		for i in xrange(0, len(str(n))):
-			correct = False
-			ser.write(bytes(str(n)[i]))
-			tmp = ser.read()
-			if (tmp != bytes(str(n)[i])):
-				break;
-			correct = True
+# Protocol in-depth in *.ino
+def sendMillis(n, s):
+	ser.write (("m"+str(n)+"#").encode()) #TODO < 100
+	print ("Send: m"+str(n))
+	time.sleep(1)
+	tmp = ser.readline()
+	flushAll()
+	print "Recv: " + str(tmp[:len(str(n))])
+	if str(n) == tmp[:len(str(n))]:
+		if (s == True):
+			ser.write ("s".encode())
+			print ("Send: s")
+		else:
+			ser.write ("k#".encode())
+			print ("Send: k")
+		flushAll()
+		time.sleep(0.2)
+		tmp = ser.readline()
+		print "Recv: " + str(tmp)
 	else:
-		correct = False
-	if (False == correct):
-		ser.write('x')
-		print "Fail"
-		sendMillis(n)
-	print "Success!"
-
+		ser.write("x#".encode())
+		print "Send: x"
+		sendMillis(n, s)
+	flushAll()
 
 # Start of Program
 time.sleep(5) # Needed to open connection
 # test:
+sendPump(0);
+sendMillis(230, False);
+sendPump(1);
+sendMillis(99, False);
 sendPump(2);
-sendMillis(20);
-
-
-# Sending random stuff for testing purposes
-# while True:
-    # rand = random.randrange(33, 123);
-    # msg = chr(rand)
-    # ser.write(bytes(msg))
-    # print "sent: " + msg
-    # tmp = ser.read()
-    # print "recv: " + tmp
-    # time.sleep(5)
+sendMillis(1, False);
+sendPump(3);
+sendMillis(0, True);

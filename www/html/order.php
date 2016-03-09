@@ -8,7 +8,7 @@
 
 <body>
 <div class="wrapper">
-	<div class="header">
+	<div>
 		<h1>BorrelBot - Order</h1>
 		<ul class="grid-nav">
 			<li><a href="#">Order</a></li>
@@ -34,11 +34,11 @@
 
 
 				if (isset($_GET['order']) && !isset($_POST['order'])){
-					echo "Confirm order: " . $_GET['order'];
+					echo "<div class='header'>Confirm order: " . $_GET['order'];
 					echo '	<form action="order.php" method="POST">
 								<input type="hidden" name="order" value="'. $_GET['order'] .'">
 								<input type="submit" value="Order!">
-							</form>';
+							</form></div>';
 				}
 				else if (isset($_POST['order'])){
 					$host = "localhost";
@@ -84,7 +84,7 @@
 					socket_sendto($f, $msg, $len, 0, $host, $port);
 
 					socket_close($f);
-					echo "Order placed!";
+					echo "<div class='header'>Order placed!</div>";
 				}_
 			?>
 			<br><p><h2>Currently available</h2></p><br>

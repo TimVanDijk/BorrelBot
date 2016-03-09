@@ -17,7 +17,7 @@
 <div id="three-columns" class="grid-container" style="display:block;">
 <center><ul class="rig columns-3">	
 	<li display: block;>
-	<h3>Currently installed</h3>
+	<h2>Currently installed</h2><br>
 	<?php
 		$dbhost = 'localhost';
 		$dbuser = 'root';
@@ -39,7 +39,7 @@
 				mysql_real_escape_string($_POST['slot_3'])."', '".
 				mysql_real_escape_string($_POST['slot_4'])."');";
 			mysql_query($query);
-			echo"Saved<br>";
+			echo"<font color='green'>Saved</font><br><br>";
 		}
 		
 		$res = mysql_query("SELECT * FROM available");
@@ -53,19 +53,20 @@
 					Slot 3: 
 					<input type='text' name='slot_3' value='" . $row['slot_3'] . "'><br>
 					Slot 4: 
-					<input type='text' name='slot_4' value='" . $row['slot_4'] . "'><br>" . "
+					<input type='text' name='slot_4' value='" . $row['slot_4'] . "'><br><br>" . "
 				<input type='submit' value='Submit'>
 				</form>";
 		}
 	?>
 </li>
-</ul></center>
+</ul>
+<div class="settingsfooter">
+	<p class="centered">Door: 
+	<a href="https://github.com/Timvandijk">Tim</a>,
+	<a href="https://github.com/W-M-T">Ward</a> en 
+	<a href="https://github.com/Mathiman">Mathis</a></p></center>
 </div>
-<!-- Verander de links -->
-<p class="centered">Door: 
-<a href="https://github.com/Timvandijk">Tim</a>,
-<a href="https://github.com/W-M-T">Ward</a> en 
-<a href="https://github.com/Mathiman">Mathis</a></p>
+</div>
 </div>
 </div>
 </body>

@@ -8,15 +8,17 @@
 
 <body>
 <div class="wrapper">
-	<div class="container">
+	<div class="header">
 		<h1>BorrelBot - Order</h1>
 		<ul class="grid-nav">
 			<li><a href="#">Order</a></li>
 			<li><a href="settings.php">Settings</a></li>
 			<li><a href="#">Edit Recipes</a></li>
 		</ul>	
-		
+	</div>
+	<div class="container">
 		<div id="three-columns" class="grid-container" style="display:block;">
+			<!-- Handles orders -->
 			<?php
 				function ingredientToSlot($ingr) {
 					$available = mysql_fetch_array(mysql_query("SELECT * FROM available"));
@@ -85,7 +87,7 @@
 					echo "Order placed!";
 				}_
 			?>
-			<h3>Currently available</h3>
+			<br><p><h2>Currently available</h2></p><br>
 			<ul class="rig columns-3">
 			<?php
 			$dbhost = 'localhost';
@@ -145,7 +147,7 @@
 				echo'</p>
 				</li>';
 			}
-			echo "</ul><br><h3>Currently unavailable</h3><br><ul class='rig columns-3'>";
+			echo "</ul><br><p><h2>Currently unavailable</h2></p><br><ul class='rig columns-3'>";
 			foreach ($notmakeable as $cocktail) {
 				echo'<li>
 					<img src="' . $cocktail['picture'] . '" />
@@ -169,15 +171,16 @@
 			?>
 			</ul>
 		</div>
-		
-		<!-- Verander de links -->
-		<p class="centered">Door: 
-		<a href="https://github.com/Timvandijk">Tim</a>,
-		<a href="https://github.com/W-M-T">Ward</a> en 
-		<a href="https://github.com/Mathiman">Mathis</a></p>
+		<div class="footer">
+		<p class="centered">
+			Door: 
+			<a href="https://github.com/Timvandijk">Tim</a>,
+			<a href="https://github.com/W-M-T">Ward</a> en 
+			<a href="https://github.com/Mathiman">Mathis</a>
+		</p>
 	</div>
-	<!--/.container-->
+	</div>
+	
 </div>
-<!--/.wrapper-->
 </body>
 </html>

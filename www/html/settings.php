@@ -54,7 +54,7 @@
 					<input type='text' name='slot_3' value='" . $row['slot_3'] . "'><br>
 					Slot 4: 
 					<input type='text' name='slot_4' value='" . $row['slot_4'] . "'><br><br>" . "
-				<input type='submit' value='Submit'>
+				<input class='button' type='submit' value='Submit'>
 				</form>";
 		}
 	?>

@@ -37,7 +37,7 @@
 					echo "<div class='header'>Confirm order: " . $_GET['order'];
 					echo '	<form action="order.php" method="POST">
 								<input type="hidden" name="order" value="'. $_GET['order'] .'">
-								<input type="submit" value="Order!">
+								<input class="button" type="submit" value="Order!">
 							</form></div>';
 				}
 				else if (isset($_POST['order'])){

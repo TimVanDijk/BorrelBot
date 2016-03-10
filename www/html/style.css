@@ -21,6 +21,10 @@ hr {
     margin: 25px 0;
     clear: both;
 }
+.button {
+	height:50px;
+	width:90px;
+}
 .centered {
     text-align: center;
 }

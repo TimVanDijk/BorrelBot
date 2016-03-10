@@ -84,7 +84,7 @@
 					socket_sendto($f, $msg, $len, 0, $host, $port);
 
 					socket_close($f);
-					echo "<div class='header'>Order placed!</div>";
+					echo "<div class='header'><font color='green'>Order placed!</font></div>";
 				}_
 			?>
 			<br><p><h2>Currently available</h2></p><br>

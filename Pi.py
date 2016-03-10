@@ -1,6 +1,7 @@
 import serial
 # import random
 import time
+import socket
 
 ser = serial.Serial('/dev/ttyUSB2', 9600)
 def flushAll():
@@ -53,11 +54,33 @@ def sendMillis(n, s):
 # Start of Program
 time.sleep(5) # Needed to open connection
 # test:
-sendPump(0);
-sendMillis(230, False);
-sendPump(1);
-sendMillis(99, False);
-sendPump(2);
-sendMillis(1, False);
-sendPump(3);
-sendMillis(0, True);
+#sendPump(0);
+#sendMillis(230, False);
+#sendPump(1);
+#sendMillis(99, False);
+#sendPump(2);
+#sendMillis(1, False);
+#sendPump(3);
+#sendMillis(0, True);
+s = socket.socket()
+host = "localhost"
+port = 12345
+s.bind((host, port))
+
+s.listen(5)
+
+while True:
+	c, addr = s.accept()
+	data = c.recv(1024)
+	if data:
+		print "Received order: " + str(data)
+		amounts = data.split("-")
+		sendPump(0)
+		sendMillis(amounts[0], False)
+		sendPump(1)
+		sendMillis(amounts[1], False)
+		sendPump(2)
+		sendMillis(amounts[2], False)
+		sendPump(3)
+		sendMillis(amounts[3], True)
+	c.close()

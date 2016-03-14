@@ -1,127 +1,81 @@
+#include <AFMotor.h>
 /*
- * Arduino Pump and Time reciever for Pi.py
- */
-
-#include <LiquidCrystal.h>
-#include <math.h>
-//LCD
-LiquidCrystal lcd = LiquidCrystal(8, 9, 4, 5, 6, 7);
-
-// Full recipe available
-bool recipe = false;
-// current transmitting pumpNumber (-1 = nothing, 0/1/2/3= pumpNumber)
-int pNum = -1;
-// time per pump (-1 = not set yet, 0 = keep off, 1+ = pumpTime)
+AF_DCMotor motor1(1);
+AF_DCMotor motor2(2);
+AF_DCMotor motor3(3);
+AF_DCMotor motor4(4);
+*/
 int pTime[4] = {-1, -1, -1, -1};
+int pIndex = 0;
 
-void setup(){
-  //LCD Hello
-  lcd.begin(16,2);
-  lcd.print("Hello!");
-  //Connection to Pi
+int scalar = 1;
+
+void setup() {
   Serial.begin(9600);
+  /*
+  motor1.setSpeed(255);
+  motor2.setSpeed(255);
+  motor3.setSpeed(255);
+  motor4.setSpeed(255);
+  motor1.run(RELEASE);
+  motor2.run(RELEASE);
+  motor3.run(RELEASE);
+  motor4.run(RELEASE);
+  */
 }
 
-/*
- * get Pump number
- * (P: "p0/1/2/3" A: '0/1/2/3' P:'k')
- * (P: 'x' -> begin again)
- * P = Pi, A = Arduino
- * return pumpNum (-1: reset, 0-3: pumpNum)
- */
-int listenForPump(){
-  while (!Serial.available()) {}
-  // get String
-  String tmp = Serial.readStringUntil('#');
-  if (tmp[0] == 'p') {
-    Serial.println(int(char(tmp[1]) - '0'));
-  } else {
-    Serial.println("x");
-    return -1;
-  }
-  while (!Serial.available()) {}
-  if (Serial.read() == 'k') {
-    return int(char(tmp[1]) - '0');
-  }
-  Serial.println("x");
-  return -1;
+bool ready() {
+  return pTime[0] != -1 and pTime[1] != -1 and pTime[2] != -1 and pTime[3] != -1;
 }
 
-/*
- * get Pump timer
- * (P: 'm000-m999', A: '000-999' P:'k/s')
- * (k: following pump. s: start pumping.)
- * P = Pi, A = Arduino
- * return pumpTime (-1: reset, 0-999: pumpTime)
- */
-int listenForTime(){
-  while (!Serial.available()) {}
-  // get String
-  String tmp = Serial.readStringUntil('#');
-  if (tmp[0] == 'm') {
-    // convert number
-    int ret = 0;
-    int mult = 1;
-    for (int i = strlen(tmp.c_str())-1; i > 0; i--) {
-      int add = int(char(tmp[i]) - '0') * mult;
-      mult *= 10;
-      ret += add;
+void reset() {
+  for (int i = 0; i < 4; i++) {
+    pTime[i] = -1;
+  }
+  Serial.println("d"); //d(one)
+}
+
+void loop() {
+  if (ready()) {
+
+    //Debug. Remove in final version
+    Serial.print("making drink: ");
+    for (int i = 0; i < 4; i++) {
+      Serial.print(pTime[i]);
+      Serial.print(" ");
     }
-    Serial.println(ret);
-    while (!Serial.available()) {}
-    // get String
-    String tmp = Serial.readStringUntil('#');
-    if (tmp[0] == 'k' || tmp[0] == 's') {
-      if (tmp[0] == 's') {
-        Serial.println('s');
-        recipe = true;
+    Serial.println("");
+    //End debug
+
+    //TODO: Make this run in parallel
+    /*
+    motor1.run(FORWARD);
+    delay(scalar * pTime[0]);
+    motor2.run(FORWARD);
+    delay(scalar * pTime[1]);
+    motor3.run(FORWARD);
+    delay(scalar * pTime[2]);
+    motor3.run(FORWARD);
+    delay(scalar * pTime[3]);
+    */
+    Serial.println("I did make some drinks. They were delicous. Don't drink and drive");
+    reset();
+  }
+
+  /*
+   * get a string with 4 numbers. "1111222233334444"
+   */
+  if (Serial.available()) {
+    String order = Serial.readStringUntil('#');
+    for (int i = 0; i < 4; i++){
+      int tmpTime = 0;
+      int mult = 1;
+      for (int j = 3; j >= 0; j--) {
+        int add = int(char(order[(i*4)+j]) - '0') * mult;
+        mult *= 10;
+        tmpTime += add;
       }
-      Serial.println('k');
-      pNum = -1;
-      return ret;
+      pTime[i] = tmpTime;
     }
   }
-  Serial.println("x");
-  return -1;
-}
-
-void loop(){
-  if (!recipe) {
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Listen");
-    if (pNum < 0) { // not valid yet
-      lcd.print("P");
-      pNum = listenForPump();
-    } else if (pTime[pNum] < 0) { // not valid yet
-      lcd.print("M");
-      pTime[pNum] = listenForTime();
-    } else {
-      recipe = true;
-    }
-  } else {
-    //Start mixing.
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print (pTime[0]);
-    lcd.print ("     ");
-    lcd.print (pTime[1]);
-    lcd.setCursor(0,1);
-    lcd.print (pTime[2]);
-    lcd.print ("     ");
-    lcd.print (pTime[3]);
-    delay(2000);
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Making some drinks.");
-    delay(1000);
-    // reset everything
-    recipe = false;
-    pNum = -2;
-    for (int i = 0; i < 4; i ++){
-      pTime[i] = -2;
-    }
-    // send ready
-  }
-  delay(500); // only needed for LCD
 }

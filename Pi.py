@@ -3,7 +3,7 @@ import serial
 import time
 import socket
 
-ser = serial.Serial('/dev/ttyUSB2', 9600)
+#ser = serial.Serial('/dev/ttyUSB2', 9600)
 def flushAll():
 	ser.flushInput()
 	ser.flushOutput()
@@ -72,15 +72,17 @@ s.listen(5)
 while True:
 	c, addr = s.accept()
 	data = c.recv(1024)
+	c.close()
 	if data:
 		print "Received order: " + str(data)
 		amounts = data.split("-")
-		sendPump(0)
-		sendMillis(amounts[0], False)
-		sendPump(1)
-		sendMillis(amounts[1], False)
-		sendPump(2)
-		sendMillis(amounts[2], False)
-		sendPump(3)
-		sendMillis(amounts[3], True)
-	c.close()
+		while True:
+			sendPump(0)
+			sendMillis(amounts[0], False)
+			sendPump(1)
+			sendMillis(amounts[1], False)
+			sendPump(2)
+			sendMillis(amounts[2], False)
+			sendPump(3)
+			sendMillis(amounts[3], True)
+	

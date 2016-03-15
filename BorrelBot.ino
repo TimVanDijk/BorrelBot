@@ -56,7 +56,7 @@ void loop() {
           motor[i].run(RELEASE);
           pTime[i] = 0;
         }
-        if (pTime[0] == 0) {
+        if (pTime[i] <= 0) {
           donePumps++;
         }
       }

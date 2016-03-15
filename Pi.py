@@ -2,7 +2,6 @@ import serial
 import time
 import socket
 import sys
-
 try: 
 	ser = serial.Serial('/dev/ttyUSB0', 9600)
 except serial.SerialException:
@@ -37,3 +36,9 @@ while True:
 		msg += "#"
 		print("Sending message: " + msg)
 		ser.write(msg.encode())	
+		while True:
+			inp = ser.readline()
+			if inp != "":
+				print(inp)
+				break;
+			time.sleep(1)

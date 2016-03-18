@@ -7,10 +7,10 @@ AF_DCMotor motorD(4);
 
 AF_DCMotor motor[4] = {motorA, motorB, motorC, motorD};
 
-int pTime[4] = {-1, -1, -1, -1};
+long pTime[4] = {-1, -1, -1, -1};
 int pIndex = 0;
 
-int scalar = 200;
+long scalar[4] = {1000,1000,1000,1000};
 
 unsigned long beginTime = 0;
 unsigned long passedTime = 0;
@@ -23,7 +23,6 @@ void setup() {
   }
 }
 
-
 bool ready() {
   return pTime[0] != -1 and pTime[1] != -1 and pTime[2] != -1 and pTime[3] != -1;
 }
@@ -33,6 +32,7 @@ void reset() {
     pTime[i] = -1;
   }
   beginTime = 0;
+  passedTime = 0;
   Serial.println("Done :)");
 }
 
@@ -52,7 +52,7 @@ void loop() {
     }
     int donePumps = 0;
     for (int i = 0; i < 4; i++){
-        if (pTime[i] > 0 && (scalar * pTime[i]) < passedTime) {
+        if (pTime[i] > 0 && (scalar[i] * pTime[i]) < passedTime) {
           motor[i].run(RELEASE);
           pTime[i] = 0;
         }

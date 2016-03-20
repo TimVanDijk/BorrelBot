@@ -91,14 +91,19 @@ def main():
 			c.close()
 			if data:
 				print("Received order: " + str(data))
-				amounts = data.split("-")
-				msg = ""
-				for amount in amounts:
-					msg += amount.zfill(4)
-				msg += "#"
-				lock.aquire()
-				queue.append(msg)
-				lock.release()
+				if data == "reverse":
+					lock.aquire()
+					queue.append("rv")
+					lock.release()
+				else:
+					amounts = data.split("-")
+					msg = ""
+					for amount in amounts:
+						msg += amount.zfill(4)
+					msg += "#"
+					lock.aquire()
+					queue.append(msg)
+					lock.release()
 			
 	except KeyboardInterrupt:
 		print("\n[*] - Received KeyboardInterrupt.")

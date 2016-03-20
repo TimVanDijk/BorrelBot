@@ -1,6 +1,10 @@
 import xml
 import xml.etree.ElementTree as ET
 import requests
+import json
+import re
+import os
+
 '''
 whiskey
 vermouth (sweet)
@@ -27,38 +31,48 @@ aviation (lemon juice)
 casino (lemon juice)
 
 '''
-
-rightlinkers = ['de','fresh','white','dark','triple','strong','red','sweet','dry']
-leftlinkers = ['de','bitters','juice','liquor']
+#Words to link together with another word
+rightlinkers = ['carbonated','apricot','coconut','egg','hot','gomme','orgeat','ginger','soda','dashes','strawberry','de','fresh','white','dark','triple','strong','red','sweet','dry','lillet','irish','orange','grand','cherry']
+leftlinkers = ['extract','sauce','purée','citron','light','de','bitter','bitters','juice','liquor', 'liqueur', 'schnapps', 'bénédictine']
 
 def main():
     head = 'https://en.wikipedia.org'
     urls = collectURLs(head+'/wiki/List_of_IBA_official_cocktails')
     #filter nonexistant pages
     urls = list(filter(lambda x: not('?' in x), urls))
+    #collect ingredients
     ingredients = []
+    imgs = []
     for url in urls:
         ingredients.append(getIngredientsFromURL(head+url))
+        link = "https:" + getImgFromURL(head+url)
+        imgs.append("https:" + getImgFromURL(head+url))
     #process data
-    ingredients = [[x.lower().replace('(','').replace(')','') for x in recipe]for recipe in ingredients]
-    ingredients = [linkStrings(recipe) for recipe in ingredients]
-    wordfilter = ['parts','part','of','a','dashes','dash','sugar','old','tom','salt','pepper','drops','simple','few','or','according','to','individual','preference']
+    #remove brackets
+    ingredients = [[x.lower() for x in recipe]for recipe in ingredients]
+    #remove certain words
+    wordfilter = ['freshly','squeezed','flower','celery','half','cut','into','wedges','two','barspoon','tom','one','teaspoon','teaspoons','leaves','leaf','cube','brown','green','optional','splash','parts','part','of','a','dashes','dash','sugar','short','old','baileys','salt','pepper','drops','simple','few','or','according','to','individual','sweetness','preference']
     ingredients = [list(filter(lambda x: not('cl' in x), recipe)) for recipe in ingredients]
     ingredients = [list(filter(lambda x: not(any(word == x for word in wordfilter)), recipe)) for recipe in ingredients]
+    #Remove all junk numbers and html
     ingredients = [list(filter(lambda x: (x.replace('\'','').isalpha()) or (x.replace(' ','').isalpha()), recipe)) for recipe in ingredients]
-    #count occurance
+    #link words
+    ingredients = [linkStrings(recipe) for recipe in ingredients]
+    #Remove duplicates
+    #ingredients = [list(set(x)) for x in ingredients]
+    #count occurances of ingredients
     ingredientcounter = [(x,0) for x in list(set(x for x in traverse(ingredients)))] 
     for recipe in ingredients:
         for index, ing in enumerate(ingredientcounter):
             if ing[0] in recipe:
                 ingredientcounter[index] = (ing[0], ing[1] + 1)
-    ingredientcounter.sort(key=lambda x: x[1], reverse=True)
-    #print(ingredients)
-    
+    ingredientcounter.sort(key=lambda x: x[1], reverse=True)  
     #for tup in ingredientcounter:
     #    print(tup)
     
     #print(ingredientcounter)
+    '''
+    FILTERING ON CERTAIN INGREDIENTS
     showrecipes = ['orange']
     dontshowrecipes = ['syrup','egg','rum','cognac']
     count=0
@@ -76,7 +90,14 @@ def main():
             emptcounter = emptcounter + 1
             print(urls[index])
     print(emptcounter)
-
+    '''
+    for index, recipe in enumerate(ingredients):
+        if (recipe):
+            print(urls[index].replace('/wiki/','--').replace('_(cocktail)',''))
+            for ing in recipe:
+                print(ing)
+            print()
+    write_all_cocktails(urls, ingredients, imgs)
 
 def match(word, llist):
     for x in llist:
@@ -113,9 +134,20 @@ def getIngredientsFromURL(url):
         for ul in td:
             for li in td:
                 for el in li:
-                    for sub in subString(el).split():
+                    for sub in subString(el).replace("(", " ").replace(")", " ").split():
                         ingredstrings.append(sub)
     return ingredstrings
+
+def getImgFromURL(url):
+    #table caption en naar dict
+    ingredstrings = []
+    page = requests.get(url)
+    root = ET.fromstring(page.text)
+    #print(root)
+    for a in root.findall('.//a[@class="image"]'):
+        for img in a:
+            if (not "question" in img.attrib['src'].lower()):
+                return img.attrib['src']
 
 def linkStrings(ilist):
     tempstring = ' '.join(ilist)
@@ -132,11 +164,39 @@ def linkStrings(ilist):
     #print(l)
     return l
 
+
 def subString(el):
     s = ""
     for item in el.itertext():
         s += item
     return s
 
+def download_img(url):
+    return requests.get(url).content
+
+def write_all_cocktails(urls, cocktaillist, imglist):
+    writedir = os.path.dirname(os.path.abspath(__file__))+"/recipes/"
+    if not os.path.exists(writedir):
+        os.makedirs(writedir)
+    for index, recipe in enumerate(cocktaillist):
+        if (recipe):
+            name = urls[index].replace('/wiki/','--').replace('_(cocktail)','')
+            name = re.sub('[^0-9a-zA-Z]+', ' ', name)
+            name = name.replace("  ", " ").strip()
+            print("write " + name)
+            write_cocktail(writedir + name + ".json", recipe)
+            write_img(writedir + name + ".jpg", download_img(imglist[index]))
+    
+
+def write_cocktail(outputFile, cocktail):
+    encoder = json.JSONEncoder()
+    with open(outputFile, 'w') as writefile:
+        writefile.write(encoder.encode(cocktail))
+    writefile.close()
+
+def write_img(outputFile, byteData):
+    with open(outputFile, 'wb') as f:
+        f.write(byteData)
+        
 if __name__ == "__main__":
     main()

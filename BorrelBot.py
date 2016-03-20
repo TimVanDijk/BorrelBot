@@ -93,7 +93,7 @@ def main():
 				print("Received order: " + str(data))
 				if data == "reverse":
 					lock.aquire()
-					queue.append("rv")
+					queue.append("rv#")
 					lock.release()
 				else:
 					amounts = data.split("-")

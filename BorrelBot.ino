@@ -9,6 +9,7 @@ AF_DCMotor motor[4] = {motorA, motorB, motorC, motorD};
 
 long pTime[4] = {-1, -1, -1, -1};
 int pIndex = 0;
+boolean reverse = false;
 
 long scalar[4] = {1000,1000,1000,1000};
 
@@ -28,6 +29,7 @@ bool ready() {
 }
 
 void reset() {
+  reverse = false;
   for (int i = 0; i < 4; i++) {
     pTime[i] = -1;
   }
@@ -44,7 +46,12 @@ void loop() {
       for (int i = 0; i < 4; i++){
         if (pTime[i] > 0) {
           motor[i].setSpeed(255);
-          motor[i].run(FORWARD);
+          if (!reverse){
+            motor[i].run(FORWARD);
+          }
+          else{
+            motor[i].run(BACKWARDS);
+          }
         }
       }
     } else {
@@ -70,6 +77,13 @@ void loop() {
    */
   if (Serial.available()) {
     String order = Serial.readStringUntil('#');
+    if (order[0] == 'r' && order[1] == 'v'){
+      ptime[0] = 50;//Find the right constants for this by experimentation
+      ptime[1] = 50;
+      ptime[2] = 50;
+      ptime[3] = 50;
+      reverse = true;
+    }
     for (int i = 0; i < 4; i++){
       int tmpTime = 0;
       int mult = 1;

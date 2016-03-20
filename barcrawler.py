@@ -51,7 +51,7 @@ def main():
     #remove brackets
     ingredients = [[x.lower() for x in recipe]for recipe in ingredients]
     #remove certain words
-    wordfilter = ['freshly','squeezed','flower','celery','half','cut','into','wedges','two','barspoon','tom','one','teaspoon','teaspoons','leaves','leaf','cube','brown','green','optional','splash','parts','part','of','a','dashes','dash','sugar','short','old','baileys','salt','pepper','drops','simple','few','or','according','to','individual','sweetness','preference']
+    wordfilter = ['plain','freshly','squeezed','flower','celery','half','cut','into','wedges','two','barspoon','tom','one','teaspoon','teaspoons','leaves','leaf','cube','brown','green','optional','splash','parts','part','of','a','dashes','dash','sugar','short','old','baileys','salt','pepper','drops','simple','few','or','according','to','individual','sweetness','preference']
     ingredients = [list(filter(lambda x: not('cl' in x), recipe)) for recipe in ingredients]
     ingredients = [list(filter(lambda x: not(any(word == x for word in wordfilter)), recipe)) for recipe in ingredients]
     #Remove all junk numbers and html

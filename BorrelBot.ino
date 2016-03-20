@@ -12,6 +12,7 @@ int pIndex = 0;
 boolean reverse = false;
 
 long scalar[4] = {1000,1000,1000,1000};
+long constant[4] = {2000,2000,2000,2000};
 
 unsigned long beginTime = 0;
 unsigned long passedTime = 0;
@@ -59,7 +60,7 @@ void loop() {
     }
     int donePumps = 0;
     for (int i = 0; i < 4; i++){
-        if (pTime[i] > 0 && (scalar[i] * pTime[i]) < passedTime) {
+        if (pTime[i] > 0 && (scalar[i] * pTime[i]) + constant[i] < passedTime) {
           motor[i].run(RELEASE);
           pTime[i] = 0;
         }

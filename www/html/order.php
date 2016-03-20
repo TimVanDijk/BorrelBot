@@ -85,7 +85,29 @@
 
 					socket_close($f);
 					echo "<div class='header'><font color='green'>Order placed!</font></div>";
-				}_
+				}
+				else if (isset($_GET['act']) && !isset($_POST['act'])) {
+					echo "<div class='header'>Confirm action: " . $_GET['act'];
+					echo '	<form action="order.php" method="POST">
+								<input type="hidden" name="order" value="'. $_GET['act'] .'">
+								<input class="button" type="submit" value="-Perform action-">
+							</form></div>';
+				}
+				else if (isset($_POST['act'])) {
+					$host = "localhost";
+					$port = 12345;
+
+					$f = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+					socket_set_option($f, SOL_SOCKET, SO_SNDTIMEO, array('sec' => 1, 'usec' => 500000));
+					$s = socket_connect($f, $host, $port);
+					
+					$msg = $_POST['act']; 
+					$len = strlen($msg);
+					socket_sendto($f, $msg, $len, 0, $host, $port);
+
+					socket_close($f);
+					echo "<div class='header'><font color='green'>Action performed.</font></div>";
+				}
 			?>
 			<br><p><h2>Currently available</h2></p><br>
 			<ul class="rig columns-3">
@@ -125,8 +147,7 @@
 				else {
 					array_push($notmakeable, $cocktail);
 				}
-			}
-
+			}		
 			foreach ($makeable as $cocktail) {
 				echo'<li>
 					<a href="order.php?order=' . $cocktail['name'] . '"><img src="' . $cocktail['picture'] . '" /></a>
@@ -147,6 +168,15 @@
 				echo'</p>
 				</li>';
 			}
+			//Add the "Clean tubes" option
+			echo'<li>
+				<a href="order.php?act=' . 'reverse' . '"><img src="' . 'INSERT URL HERE' . '" /></a>
+				<h3>'. '[Clean tubes]' . '</h3>
+				<p>
+				Pumps the liquid backwards
+				</p>
+			</li>';
+
 			echo "</ul><br><p><h2>Currently unavailable</h2></p><br><ul class='rig columns-3'>";
 			foreach ($notmakeable as $cocktail) {
 				echo'<li>

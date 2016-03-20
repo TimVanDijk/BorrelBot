@@ -3,6 +3,8 @@ import time
 import socket
 import sys
 from threading import Thread
+from threading import Lock
+#External dependencies: pySerial
 
 print("""
 888888b.                                    888 888888b.            888    
@@ -23,6 +25,7 @@ kill_received = False
 queue = []
 
 #Try to find an arduino and then create a connection.
+#Can be done using a for loop, but we don't have many objects anyway
 try: 
 	ser = serial.Serial('/dev/ttyUSB0', 9600)
 except serial.SerialException:
@@ -41,15 +44,17 @@ time.sleep(5) #Leave this out and we get weird readings from the serial.
 print("[+] - Done!")
 
 #Checks the queue for orders and forwards them to the arduino
-def arduinoHandler():
+def arduinoHandler(lock):
 	global queue
 	global ser
 	global kill_received
 
 	while not kill_received:
 		if queue != []:
+			lock.acquire()
 			msg = queue[0]
 			queue = queue[1:]
+			lock.release()
 			print("[*] - Sending message: " + msg)
 			if True:
 				ser.write(msg.encode())	
@@ -68,7 +73,9 @@ def main():
 	global kill_received
 
 	try:
-		t = Thread(target=arduinoHandler)
+		#Mutex for accessing the drink queue
+		lock = Lock()
+		t = Thread(target=arduinoHandler(lock))
 		t.start()
 		
 		#Used for communication with the webinterface. 
@@ -83,19 +90,25 @@ def main():
 			data = c.recv(1024)
 			c.close()
 			if data:
-				print "Received order: " + str(data)
+				print("Received order: " + str(data))
 				amounts = data.split("-")
 				msg = ""
 				for amount in amounts:
 					msg += amount.zfill(4)
 				msg += "#"
+				lock.aquire()
 				queue.append(msg)
+				lock.release()
 			
 	except KeyboardInterrupt:
 		print("\n[*] - Received KeyboardInterrupt.")
 		print("[*] - Telling arduinoHandler thread to stop.")
 		#Tell the arduinoHandler to stop
 		kill_received = True
+		try:
+			lock.release()#In het geval dat de main thread de lock had tijdens de keyboardinterrupt
+		except ThreadError:
+			pass
 		#Close the socket
 		if s:
 			s.close()

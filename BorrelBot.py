@@ -111,7 +111,7 @@ def main():
 		#Tell the arduinoHandler to stop
 		kill_received = True
 		try:
-			lock.release()#In het geval dat de main thread de lock had tijdens de keyboardinterrupt
+			lock.release()#In case the main thread had the lock when the keyboardinterrupt occured
 		except ThreadError:
 			pass
 		#Close the socket

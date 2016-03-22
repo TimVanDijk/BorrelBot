@@ -14,9 +14,9 @@ long pTime[4] = {-1, -1, -1, -1}; // -1 = not set; 0 = don't run; 1+ = millilite
 // If the pumps should run in reverse
 boolean reverse = false;
 // factor for converting pTime into actual time
-long scalar[4] = {1000,1000,1000,1000};
+const long scalar[4] = {750,500,648,450};
 // base time a pump has to run before anything happens
-long constant[4] = {2000,2000,2000,2000};
+long constant[4] = {2000,1800,2100,1400};
 
 // stores the return value of millis() to measure time
 unsigned long beginTime = 0;
@@ -46,7 +46,13 @@ bool ready() {
  * informing the Pi that we can recieve and execute the next order.
  */
 void reset() {
-  reverse = false;
+  if (reverse) {
+    constant[0] = 2000;
+    constant[1] = 1800;
+    constant[2] = 2100;
+    constant[3] = 1400;
+    reverse = false;
+  }
   for (int i = 0; i < 4; i++) {
     pTime[i] = -1;
   }
@@ -69,7 +75,7 @@ void loop() {
           if (!reverse){ // direction
             motor[i].run(FORWARD);
           } else {
-            motor[i].run(BACKWARDS);
+            motor[i].run(BACKWARD);
           }
         }
       }
@@ -82,6 +88,7 @@ void loop() {
         if (pTime[i] > 0 && (scalar[i] * pTime[i]) + constant[i] < passedTime) { // Pump ran long enough
           motor[i].run(RELEASE);
           pTime[i] = 0; // won't be stopped again
+          constant[i] = 0; // no need to wait next time; reset after reverse
         }
         if (pTime[i] <= 0) { // pump has been stopped
           donePumps++;
@@ -99,10 +106,10 @@ void loop() {
   if (Serial.available()) {
     String order = Serial.readStringUntil('#');
     if (order[0] == 'r' && order[1] == 'v'){ // reverse
-      ptime[0] = 50; // Find the right constants for this by experimentation
-      ptime[1] = 50;
-      ptime[2] = 50;
-      ptime[3] = 50;
+      pTime[0] = 6;
+      pTime[1] = 6;
+      pTime[2] = 6;
+      pTime[3] = 6;
       reverse = true;
     } else { // forward
       for (int i = 0; i < 4; i++){

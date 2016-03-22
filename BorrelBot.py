@@ -37,7 +37,7 @@ except serial.SerialException:
 		except serial.SerialException:
 			print("[-] - Cannot find arduino.")
 			print("[-] - Exiting...")
-			sys.exit(1)
+			#sys.exit(1)
 print("[+] - Arduino found!")
 print("[*] - Waiting for the connection to be established...")			
 time.sleep(5) #Leave this out and we get weird readings from the serial.
@@ -48,7 +48,7 @@ def arduinoHandler(lock):
 	global queue
 	global ser
 	global kill_received
-
+	print("Thread started")
 	while not kill_received:
 		if queue != []:
 			lock.acquire()
@@ -73,11 +73,13 @@ def main():
 	global kill_received
 
 	try:
+		print("pre mutex")
 		#Mutex for accessing the drink queue
 		lock = Lock()
-		t = Thread(target=arduinoHandler(lock))
+		t = Thread(target=arduinoHandler,args=[lock])
+		print("thread created")
 		t.start()
-		
+		print("after mutex")
 		#Used for communication with the webinterface. 
 		s = socket.socket()
 		host = "localhost"
@@ -92,7 +94,7 @@ def main():
 			if data:
 				print("Received order: " + str(data))
 				if data == "reverse":
-					lock.aquire()
+					lock.acquire()
 					queue.append("rv#")
 					lock.release()
 				else:
@@ -101,7 +103,7 @@ def main():
 					for amount in amounts:
 						msg += amount.zfill(4)
 					msg += "#"
-					lock.aquire()
+					lock.acquire()
 					queue.append(msg)
 					lock.release()
 			

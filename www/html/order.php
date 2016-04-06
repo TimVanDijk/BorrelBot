@@ -153,6 +153,11 @@
 				<a href="order.php?act=reverse"><img width="100%" src="/images/clean tubes.jpg" /></a>
 				<h3>Clean tubes</h3>
 				<span><br><br> Pump the liquids backwards to clear the tubes</span>
+			</td>
+			<td>
+				<a href="order.php?act=forward"><img width="100%" src="/images/clean tubes.jpg" /></a>
+				<h3>Clean tubes</h3>
+				<span><br><br> Pump all liquids forward to clean the tubes (use water)</span>
 			</td>';
 		$counter = 1;
 		foreach ($makeable as $cocktail) {

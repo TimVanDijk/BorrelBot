@@ -159,7 +159,7 @@
 				<h3>Clean tubes</h3>
 				<span><br><br> Pump all liquids forward to clean the tubes (use water)</span>
 			</td>';
-		$counter = 1;
+		$counter = 2;
 		foreach ($makeable as $cocktail) {
 			if ($counter == 0) {
 				echo '<tr>';

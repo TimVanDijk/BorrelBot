@@ -95,7 +95,11 @@ def main():
 				print("Received order: " + str(data))
 				if data == "reverse":
 					lock.acquire()
-					queue.append("rv#")
+					queue.append("rv#") # pump backwards
+					lock.release()
+				else if data == "forward":
+					lock.acquire()
+					queue.append("0007000700070007#") # pump 7ml on all pumps
 					lock.release()
 				else:
 					amounts = data.split("-")
